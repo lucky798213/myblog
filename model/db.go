@@ -5,7 +5,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"myblog/utils"
+	"myblog/utils" //引入后会初始化里面的init函数，实现基础的配置
 	"time"
 )
 
@@ -24,7 +24,7 @@ func InitDb() {
 	if err != nil {
 		fmt.Printf("连接数据库失败，请检查参数", err)
 	}
-	db.AutoMigrate(&User{}, &Category{}, &Article{})
+	db.AutoMigrate(&User{}, &Category{}, &Article{}) //根据 Go 结构体自动创建或更新数据库表结构
 
 	// 获取通用数据库对象 sql.DB ，然后使用其提供的功能
 	sqlDB, _ := db.DB()

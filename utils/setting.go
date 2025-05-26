@@ -18,7 +18,7 @@ var (
 )
 
 func init() {
-	file, err := ini.Load("config/config.ini")
+	file, err := ini.Load("config/config.ini") //读取配置文件
 	if err != nil {
 		fmt.Println("配置文件读取错误，请检查文件路径")
 	}
@@ -27,7 +27,7 @@ func init() {
 }
 
 func LoadServer(file *ini.File) {
-	AppMode = file.Section("server").Key("AppMode").MustString("debug")
+	AppMode = file.Section("server").Key("AppMode").MustString("debug") //读取server中的AppMode，并设置默认值debug
 	HttpPort = file.Section("server").Key("HttpPort").MustString(":3000")
 }
 func LoadData(file *ini.File) {

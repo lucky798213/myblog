@@ -7,7 +7,7 @@ import (
 )
 
 func InitRouter() {
-	gin.SetMode(utils.AppMode)
+	gin.SetMode(utils.AppMode) //设置应用程序的运行模式
 	r := gin.Default()
 
 	router := r.Group("api/v1")

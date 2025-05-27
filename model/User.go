@@ -1,8 +1,11 @@
 package model
 
 import (
+	"encoding/base64"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/scrypt"
 	"gorm.io/gorm"
+	"log"
 	"myblog/utils/errmsg"
 )
 
@@ -25,6 +28,7 @@ func CheckUser(name string) (code int) {
 
 // 新增用户
 func CreateUser(data *User) int {
+	data.Password = ScryptPw(data.Password)
 	err := db.Create(&data).Error
 	if err != nil {
 		return errmsg.ERROR
@@ -46,3 +50,18 @@ func GetUsers(pageSize int, pageNum int) []User {
 func EditUser(c *gin.Context) {}
 
 //删除
+
+// 密码加密
+func ScryptPw(password string) string {
+	const KeyLen = 10
+	salt := make([]byte, 8)
+	salt = []byte{12, 32, 4, 6, 66, 22, 222, 11}
+
+	HashPw, err := scrypt.Key([]byte(password), salt, 16384, 8, 1, KeyLen) //加密函数
+	if err != nil {
+		log.Fatal(err)
+	}
+	fpw := base64.StdEncoding.EncodeToString(HashPw) //最终的密码
+	return fpw
+
+}

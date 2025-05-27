@@ -44,11 +44,9 @@ func GetUsers(c *gin.Context) {
 	data := model.GetUsers(pageSize, pageNum)
 	code = errmsg.SUCCSE
 	c.JSON(http.StatusOK, gin.H{
-		"status":   code,
-		"data":     data,
-		"pageSize": pageSize,
-		"pageNum":  pageNum,
-		"message":  errmsg.GetErrMsg(code),
+		"status":  code,
+		"data":    data,
+		"message": errmsg.GetErrMsg(code),
 	})
 }
 

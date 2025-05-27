@@ -2,7 +2,6 @@ package model
 
 import (
 	"encoding/base64"
-	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/scrypt"
 	"gorm.io/gorm"
 	"log"
@@ -47,9 +46,28 @@ func GetUsers(pageSize int, pageNum int) []User {
 }
 
 // 编辑用户
-func EditUser(c *gin.Context) {}
 
-//删除
+func EditUser(id int, data *User) int {
+	var user User
+	var maps = make(map[string]interface{})
+	maps["username"] = data.Username
+	maps["role"] = data.Role
+	err = db.Model(&user).Where("id = ?", id).Updates(maps).Error
+	if err != nil {
+		return errmsg.ERROR
+	}
+	return errmsg.SUCCSE
+}
+
+// 删除
+func DeleteUser(id int) int {
+	var user User
+	err = db.Where("id = ?", id).Delete(&user).Error
+	if err != nil {
+		return errmsg.ERROR
+	}
+	return errmsg.SUCCSE
+}
 
 // 密码加密
 func ScryptPw(password string) string {

@@ -26,7 +26,9 @@ func InitRouter() {
 		router.POST("article/add", v1.AddArticle)
 		router.GET("article", v1.GetArticle)
 		router.PUT("article/:id", v1.EditArticle)
+		router.GET("article/info/:id", v1.GetArtInfo)
 		router.DELETE("article/:id", v1.DeleteArticle)
+		router.GET("article/list/:id", v1.GetCateArt)
 	}
 	r.Run(utils.HttpPort)
 }

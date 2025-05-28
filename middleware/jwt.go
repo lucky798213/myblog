@@ -12,22 +12,20 @@ import (
 
 var JwtKey = []byte(utils.JwtKey)
 
-type MyClaims struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	jwt.StandardClaims
+type MyClaims struct { //用于存储一些必要的信息
+	Username           string `json:"username"`
+	jwt.StandardClaims        //声明中的预定义字段
 }
 
 var code int
 
 // 生成token
-func SetToken(username string, password string) (string, int) {
-	expireTime := time.Now().Add(time.Hour * 10)
+func SetToken(username string) (string, int) {
+	expireTime := time.Now().Add(time.Hour * 10) //设置过期时间
 	SetClaims := MyClaims{
 		username,
-		password,
 		jwt.StandardClaims{
-			ExpiresAt: expireTime.Unix(),
+			ExpiresAt: expireTime.Unix(), //其作用是将时间转换为 Unix 时间戳（即从 1970 年 1 月 1 日 00:00:00 UTC 起经过的秒数）
 			Issuer:    "ginblog",
 		},
 	}
@@ -42,10 +40,10 @@ func SetToken(username string, password string) (string, int) {
 
 // 验证token
 func CheckToken(token string) (*MyClaims, int) {
-	settoken, _ := jwt.ParseWithClaims(token, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
+	setToken, _ := jwt.ParseWithClaims(token, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return JwtKey, nil
 	})
-	if key, code := settoken.Claims.(*MyClaims); code && settoken.Valid {
+	if key, ok := setToken.Claims.(*MyClaims); ok && setToken.Valid {
 		return key, errmsg.SUCCSE
 	} else {
 		return nil, errmsg.ERROR
@@ -59,25 +57,43 @@ func JwtToken() gin.HandlerFunc {
 
 		if tokenHeader == "" {
 			code = errmsg.ERROR_TOKEN_EXIST
+			c.JSON(http.StatusOK, gin.H{
+				"code": code,
+				"msg":  errmsg.GetErrMsg(code),
+			})
+			c.Abort()
+			return
 		}
 		checkToken := strings.SplitN(tokenHeader, " ", 2)
 		if len(checkToken) != 2 || checkToken[0] != "Bearer" {
 			code = errmsg.ERROR_TOKEN_TYPE_WRONG
+			c.JSON(http.StatusOK, gin.H{
+				"code": code,
+				"msg":  errmsg.GetErrMsg(code),
+			})
 			c.Abort()
+			return
 		}
-		key, Tcode := CheckToken(checkToken[1])
-		if Tcode == errmsg.ERROR {
+		key, tCode := CheckToken(checkToken[1])
+		if tCode == errmsg.ERROR {
 			code = errmsg.ERROR_TOKEN_WRONG
+			c.JSON(http.StatusOK, gin.H{
+				"code": code,
+				"msg":  errmsg.GetErrMsg(code),
+			})
 			c.Abort()
+			return
 		}
 		if time.Now().Unix() > key.ExpiresAt {
 			code = errmsg.ERROR_TOKEN_RUNTIME
+			c.JSON(http.StatusOK, gin.H{
+				"code": code,
+				"msg":  errmsg.GetErrMsg(code),
+			})
 			c.Abort()
+			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"code": code,
-			"msg":  errmsg.GetErrMsg(code),
-		})
+
 		c.Set("username", key.Username)
 		c.Next()
 	}

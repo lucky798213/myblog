@@ -9,7 +9,9 @@ import (
 
 func InitRouter() {
 	gin.SetMode(utils.AppMode) //设置应用程序的运行模式
-	r := gin.Default()
+	r := gin.New()
+	r.Use(middleware.Logger())
+	r.Use(gin.Recovery())
 
 	auth := r.Group("api/v1")
 	auth.Use(middleware.JwtToken())

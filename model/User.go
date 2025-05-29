@@ -10,9 +10,9 @@ import (
 
 type User struct {
 	gorm.Model
-	Username string `gorm:"type:varchar(20);not null " json:"username"`
-	Password string `gorm:"type:varchar(20);not null " json:"password"`
-	Role     int    `gorm:"type:int " json:"role"`
+	Username string `gorm:"type:varchar(20);not null " json:"username" validate:"required,min=4,max=12" label:"用户名"`
+	Password string `gorm:"type:varchar(20);not null " json:"password" validate:"required,min=6,max=20" label:"密码"`
+	Role     int    `gorm:"type:int;DEFAULT:2 " json:"role" validate:"required,get=2" label:"角色码"`
 }
 
 // 查询用户是否存在
@@ -36,13 +36,14 @@ func CreateUser(data *User) int {
 }
 
 // 查询用户列表
-func GetUsers(pageSize int, pageNum int) []User {
+func GetUsers(pageSize int, pageNum int) ([]User, int64) {
 	var users []User //Limit是限制查询的长度，OFFSET+3+表示跳过前面3行开始返回数据
-	err = db.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&users).Error
+	var total int64
+	err = db.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&users).Count(&total).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil
+		return nil, 0
 	}
-	return users
+	return users, total
 }
 
 // 编辑用户
@@ -88,13 +89,13 @@ func ScryptPw(password string) string {
 func CheckLogin(username, password string) int {
 	var user User
 	db.Where("username = ?", username).First(&user)
-	if user.ID > 0 {
+	if user.ID == 0 {
 		return errmsg.ERROR_USER_NOT_EXIST
 	}
 	if ScryptPw(password) != user.Password {
 		return errmsg.ERROR_PASSWORD_WRONG
 	}
-	if user.Role != 0 {
+	if user.Role != 1 {
 		return errmsg.ERROR_USER_NO_RIGHT
 	}
 	return errmsg.SUCCSE

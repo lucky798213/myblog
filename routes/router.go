@@ -25,10 +25,10 @@ func InitRouter() {
 		auth.DELETE("category/:id", v1.DeleteCate)
 		//文章模块的路由接口
 		auth.POST("article/add", v1.AddArticle)
-
 		auth.PUT("article/:id", v1.EditArticle)
-
 		auth.DELETE("article/:id", v1.DeleteArticle)
+		//上传文件
+		auth.POST("upload", v1.UpLoad)
 
 	}
 	router := r.Group("api/v1")
